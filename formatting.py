@@ -53,9 +53,11 @@ def process_hist2D(hist):
     hist.GetXaxis().SetTitleSize(0.055) 
     hist.GetXaxis().SetLabelSize(0.05) 
  
-def process_tgraph(tgraph):
+def process_tgraph(tgraph, font_size=2):
 
     tgraph.GetXaxis().CenterTitle(True)
     tgraph.GetYaxis().CenterTitle(True)
     tgraph.GetXaxis().SetTitleOffset(1.4)
     tgraph.GetYaxis().SetTitleOffset(1.6)
+    #tgraph.GetXaxis().SetLabelSize(font_size)
+    #tgraph.GetYaxis().SetLabelSize(font_size)
