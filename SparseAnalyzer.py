@@ -1,4 +1,8 @@
+import ROOT as rt
+import numpy as np
+
 from enum import Enum
+from formatting import process_tf1, process_hist2D, process_hist, process_pave, process_tgraph
 
 eps = 0.0001
 class SparseAnalyzer:
