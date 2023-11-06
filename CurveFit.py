@@ -4,6 +4,7 @@ import numpy as np
 from enum import Enum
 from formatting import process_tf1
 
+
 class FitFunction(Enum):
     gaussian = 'gaussian'
     generalized_gassian = 'generalized_gaussian' 
@@ -37,8 +38,7 @@ class CurveFit:
         '''
         self.name = sparse.name
         self.dphi = dphi
-        # self.f = None
-        # self.fit_params = fit_params
+        self.f = None
         self.fit_range = fit_range
         self.ratio_plot = ratio_plot
         self.fit_name = f'{self.name}_{fit_function.value}_{fit_range.value}'
@@ -124,7 +124,7 @@ class CurveFit:
         elif fit_function is FitFunction.double_von_mises:
             
             # 0: NS Amp/Yield, 1: NS mean, 2: NS kappa, 3: AS Amp/Yield, 4: AS mean, 5: AS kappa
-            self.f = rt.TF1(f"{self.fit_name}", "[0]/(2*TMath::Pi()*TMath::BesselI0([2]))*TMath::Exp([2]*TMath::Cos(x- 2*TMath::Pi() - [1])) + [3]/(2*TMath::Pi()*TMath::BesselI0([5]))*TMath::Exp([5]*TMath::Cos(x- 2*TMath::Pi()-[4]))",
+            self.f = rt.TF1(f'{self.fit_name}_fit', "[0]/(2*TMath::Pi()*TMath::BesselI0([2]))*TMath::Exp([2]*TMath::Cos(x- 2*TMath::Pi() - [1])) + [3]/(2*TMath::Pi()*TMath::BesselI0([5]))*TMath::Exp([5]*TMath::Cos(x- 2*TMath::Pi()-[4]))",
                         *self.fit_range)
             self._num_params = 6
 
@@ -156,3 +156,19 @@ class CurveFit:
             return rt.TRatioPlot(self.dphi), params_w_err
         else:
             return self.dphi, params_w_err
+    
+    @staticmethod
+    def calc_gen_gaus_width(alpha, beta):
+        '''
+        Returns the standard deviation of a generalized gaussian, given alpha and beta. 
+        '''
+        var = alpha**2 * rt.Math.tgamma(3 / beta) / rt.Math.tgamma(1 / beta)
+        
+        return rt.TMath.Sqrt(var)
+
+    @staticmethod
+    def calc_mises_width(kappa):
+        '''
+        Returns the standard deviation of a von mises distribution, given alpha and beta.
+        '''
+        var = 1 - rt.TMath.BesselI1(kappa) / rt.TMath.BesselI0(kappa)
