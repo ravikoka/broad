@@ -156,19 +156,3 @@ class CurveFit:
             return rt.TRatioPlot(self.dphi), params_w_err
         else:
             return self.dphi, params_w_err
-    
-    @staticmethod
-    def calc_gen_gaus_width(alpha, beta):
-        '''
-        Returns the standard deviation of a generalized gaussian, given alpha and beta. 
-        '''
-        var = alpha**2 * rt.Math.tgamma(3 / beta) / rt.Math.tgamma(1 / beta)
-        
-        return rt.TMath.Sqrt(var)
-
-    @staticmethod
-    def calc_mises_width(kappa):
-        '''
-        Returns the standard deviation of a von mises distribution, given alpha and beta.
-        '''
-        var = 1 - rt.TMath.BesselI1(kappa) / rt.TMath.BesselI0(kappa)
