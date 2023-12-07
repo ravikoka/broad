@@ -2,6 +2,9 @@ import ROOT as rt
 import numpy as np
 
 from enum import Enum
+
+import sys
+sys.path.append('../utils/')
 from formatting import process_tf1
 
 

@@ -2,7 +2,10 @@ import ROOT as rt
 import numpy as np
 
 from enum import Enum
-from formatting import process_tf1, process_hist\
+
+import sys
+sys.path.append('../utils/')
+from formatting import process_tf1, process_hist
 
 eps = 0.0001
 class SparseAnalyzer:
