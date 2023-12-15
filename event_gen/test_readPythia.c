@@ -53,7 +53,7 @@ void test_readPythia()
     std::cout << numEvents << std::endl;
 
     // loop through all events in our run
-    for (int event=0; event < 10000; event++)
+    for (int event=0; event < numEvents; event++)
         {
         
         // checkpoint: print statement for every 10,000 events
