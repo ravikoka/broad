@@ -284,6 +284,7 @@ class SparseAnalyzer:
         # doubleGauss.SetParLimits(2, 0, 100)
         # doubleGauss.SetParLimits(5, 0, 100)
         #doubleGauss.FixParameter(0.18)
+        doubleGauss.SetParLimits(2, 0, 100)
         doubleGauss.SetParLimits(5, 0, 100)
 
         dPhi.Fit(f'{self.name}_fit', 'B')
