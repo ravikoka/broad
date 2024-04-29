@@ -2,7 +2,10 @@ import ROOT as rt
 import numpy as np
 
 from enum import Enum
-from formatting import process_tf1, process_hist\
+
+import sys
+sys.path.append('../utils/')
+from formatting import process_tf1, process_hist
 
 eps = 0.0001
 class SparseAnalyzer:
@@ -281,6 +284,7 @@ class SparseAnalyzer:
         # doubleGauss.SetParLimits(2, 0, 100)
         # doubleGauss.SetParLimits(5, 0, 100)
         #doubleGauss.FixParameter(0.18)
+        doubleGauss.SetParLimits(2, 0, 100)
         doubleGauss.SetParLimits(5, 0, 100)
 
         dPhi.Fit(f'{self.name}_fit', 'B')
