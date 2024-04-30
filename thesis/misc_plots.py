@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 rt.gStyle.SetOptFit(1111) # show fit panel w/ fit prob, chi2/ndf, fit params, errors
+rt.gStyle.SetOptStat(0)
 
 import sys
 sys.path.append('../classes/')
@@ -71,58 +72,76 @@ def make_projection_plots(sparse):
     #dEta = dPhiDEta.ProjectionY()
 
     # make canvas
-    rt.gStyle.SetOptStat(11)
+    # rt.gStyle.SetOptStat(11)
     canvas = rt.TCanvas(f'{sparse.name}_plots_canvas', f'{sparse.name}_plots')
     canvas.SetCanvasSize(1800, 800)
     canvas.Divide(3, 2)
 
     canvas.cd(1)
+    rt.gPad.SetLeftMargin(0.2)
+    rt.gPad.SetBottomMargin(0.16)
     process_hist(trigEta)
     trigEta.GetYaxis().SetRangeUser(0, 1.3*trigEta.GetMaximum())
-    trigEta.SetTitle('Trigger #eta')
+    trigEta.SetTitle('Trigger #eta Distribution')
     trigEta.SetXTitle('#eta')
     trigEta.SetYTitle('counts')
+    trigEta.GetYaxis().SetTitleOffset(1.5)
     trigEta.Draw('COLZ')
 
 
     canvas.cd(2)
+    rt.gPad.SetLeftMargin(0.2)
+    rt.gPad.SetBottomMargin(0.16)
     process_hist(assocEta)
-    assocEta.SetTitle('Associate #eta')
+    assocEta.SetTitle('Associated #eta Distribution')
     assocEta.SetXTitle('#eta')
     assocEta.SetYTitle('counts')
+    assocEta.GetYaxis().SetTitleOffset(1.5)
     assocEta.Draw('COLZ')
 
 
     canvas.cd(3)
+    rt.gPad.SetLeftMargin(0.2)
+    rt.gPad.SetBottomMargin(0.16)
     process_hist(trigPt)
-    trigPt.SetTitle('Trigger p_{T}')
-    trigPt.SetXTitle('p_{T}')
+    trigPt.SetTitle('Trigger p_{T} Distribution')
+    trigPt.SetXTitle('p_{T} (GeV)')
     trigPt.SetYTitle('counts')
+    trigPt.GetYaxis().SetTitleOffset(1.5)
     trigPt.Draw('COLZ')
 
 
     canvas.cd(4)
+    rt.gPad.SetLeftMargin(0.2)
+    rt.gPad.SetBottomMargin(0.16)
     process_hist(assocPt)
-    assocPt.SetTitle('Associate p_{T}')
-    assocPt.SetXTitle('p_{T}')
+    assocPt.SetTitle('Associated p_{T} Distribution')
+    assocPt.SetXTitle('p_{T} (GeV)')
     assocPt.SetYTitle('counts')
+    assocPt.GetYaxis().SetTitleOffset(1.5)
     assocPt.Draw('COLZ')
 
 
     canvas.cd(5)
+    rt.gPad.SetLeftMargin(0.2)
+    rt.gPad.SetBottomMargin(0.16)
     process_hist(dPhiDEta)
-    dPhiDEta.SetTitle('Correlation')
-    dPhiDEta.SetXTitle('#Delta#varphi')
+    dPhiDEta.SetTitle('2D Angular Correlation')
+    dPhiDEta.SetXTitle('#Delta#varphi (rad)')
     dPhiDEta.SetYTitle('#Delta#eta')
     dPhiDEta.GetYaxis().SetRangeUser(-1.2, 1.199)
+    dPhiDEta.GetYaxis().SetTitleOffset(1.5)
     dPhiDEta.Draw('SURF1')
 
 
     canvas.cd(6)
+    rt.gPad.SetLeftMargin(0.2)
+    rt.gPad.SetBottomMargin(0.16)
     process_hist(dEta)
-    dEta.SetTitle('#Delta#eta')
+    dEta.SetTitle('#Delta#eta Distribution')
     dEta.SetXTitle('#Delta#eta')
     dEta.SetYTitle('counts')
+    dEta.GetYaxis().SetTitleOffset(1.5)
     dEta.Draw()    
 
     return canvas
@@ -143,11 +162,16 @@ hl08_prjxn_canvas.SaveAs('hl08_projections.pdf')
 ################
 
 pt_canvas = rt.TCanvas()
+pt_canvas.SetLeftMargin(0.14)
 
 charged_hadron_pt = chargedHadronDist.Project3D('x')
 charged_hadron_pt.Rebin(2)
 charged_hadron_pt.GetYaxis().SetRangeUser(0, 1.3 * charged_hadron_pt.GetMaximum())
-charged_hadron_pt.SetName('charged_hadron_pt')
+
+charged_hadron_pt.SetTitle('Charged Hadron p_{T} (no acceptance cut)')
+charged_hadron_pt.GetXaxis().SetTitle('p_{T} (GeV/c)')
+charged_hadron_pt.GetYaxis().SetTitle('#frac{dN}{dp_{T}} (1/GeV)')
+charged_hadron_pt.GetYaxis().SetTitleOffset(1.8)
 
 pt_canvas.Draw()
 charged_hadron_pt.Draw()
@@ -166,12 +190,11 @@ pt_phi_dist.Rebin2D(2, 2)
 two_d_canvas = rt.TCanvas('twod', 'twod', 1400, 700)
 
 two_d_canvas.Divide(2, 1)
-title_pad = rt.TPad("all","all",0,0,1,1)
+title_pad = rt.TPad("all", "all", 0, 0, 1, 1)
 title_pad.SetFillStyle(4000) # transparent
 title_pad.Draw()
 
 rt.gStyle.SetOptTitle(0)
-rt.gStyle.SetOptStat(0)
 
 two_d_canvas.cd(1)
 two_d_canvas.cd(1).SetPhi(225.)
@@ -179,10 +202,12 @@ rt.gPad.SetLeftMargin(0.2)
 rt.gPad.SetBottomMargin(0.16)
 #two_d_canvas.cd(1).SetLeftMargin(0.)
 
-pt_eta_dist.SetXTitle('p_{T}')
-pt_eta_dist.SetYTitle('#varphi')
-pt_eta_dist.SetZTitle('#frac{dN}{dp_{T} d#eta}')
+pt_eta_dist.SetXTitle('p_{T} (GeV)')
+pt_eta_dist.SetYTitle('#varphi (rad)')
+pt_eta_dist.SetZTitle('#frac{dN}{dp_{T} d#eta} (1/GeV)')
 pt_eta_dist.GetZaxis().SetTitleOffset(2.2)
+pt_eta_dist.GetXaxis().SetTitleOffset(2.2)
+pt_eta_dist.GetYaxis().SetTitleOffset(2.2)
 process_hist2D(pt_eta_dist)
 pt_eta_dist.Draw('SURF1')
 
@@ -192,8 +217,8 @@ rt.gPad.SetLeftMargin(0.2)
 rt.gPad.SetBottomMargin(0.16)
 
 pt_phi_dist.SetXTitle('#eta')
-pt_phi_dist.SetYTitle('p_{T}')
-pt_phi_dist.SetZTitle('#frac{dN}{dp_{T}d#eta}')
+pt_phi_dist.SetYTitle('p_{T} (GeV)')
+pt_phi_dist.SetZTitle('#frac{dN}{dp_{T}d#eta} (1/GeV)')
 
 pt_phi_dist.GetZaxis().SetTitleOffset(2.2)
 

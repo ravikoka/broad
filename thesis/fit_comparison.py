@@ -40,6 +40,10 @@ hl08 = SparseAnalyzer(hlDist, name='hl08', etaAssoc=[-0.8, 0.8-EPSILON], apply_c
 hl12 = SparseAnalyzer(hlDist, name='hl12', etaAssoc=[-1.2, 1.2-EPSILON], apply_cut=True)
 hl20 = SparseAnalyzer(hlDist, name='hl20', etaAssoc=[-2.0, 2.0-EPSILON], apply_cut=True)
 
+######################
+## Widths across fits
+######################
+rt.gStyle.SetLineScalePS(1)
 
 # fit to regular gaussian
 distributions = [hh08, hh12, hh20, hl08, hl12, hl20]
@@ -55,6 +59,9 @@ c_gen_gaus.Divide(3, 2)
 c_mises = rt.TCanvas('mises_canvas', 'gaus_mises_canvas')
 c_mises.SetCanvasSize(2400, 800)
 c_mises.Divide(3, 2)
+
+c_fit_example = rt.TCanvas('fit_example', 'fit_example')
+c_fit_example.Divide(3, 1)
 
 fit_functions=[FitFunction.double_gaussian, FitFunction.double_generalized_gaussian, FitFunction.double_von_mises]
 
@@ -79,7 +86,22 @@ for i, (sparse, guess) in enumerate(zip(distributions, gaus_guesses)):
         dphi, params = gaussian.fit()
         
         gaus_params.append(params)
+        dphi.GetYaxis().SetTitle('counts')
         dphi.Draw()
+
+        #pave = sparse.make_pave()
+        pave = rt.TPaveText(0.1, 0.1, 0.4, 0.4)
+        pave.AddText('test')
+        pave.Draw()
+
+        if i < 3: 
+            dphi.SetTitle('Hadron-Hadron Correlation')
+
+        else:
+            dphi.SetTitle('Hadron-#Lambda Correlation')
+        if i == 0:
+              c_fit_example.cd(1)
+              dphi.Draw()
 
 for i, (sparse, guess) in enumerate(zip(distributions, gen_gaus_guesses)):
         c_gen_gaus.cd(i + 1) 
@@ -90,6 +112,10 @@ for i, (sparse, guess) in enumerate(zip(distributions, gen_gaus_guesses)):
         gen_gaus_params.append(params)
         dphi.Draw()
 
+        if i == 0:
+              c_fit_example.cd(2)
+              dphi.Draw()
+
 for i, (sparse, guess) in enumerate(zip(distributions, mises_guesses)):
         c_mises.cd(i + 1) 
 
@@ -98,11 +124,17 @@ for i, (sparse, guess) in enumerate(zip(distributions, mises_guesses)):
         mises_params.append(params)
         dphi.Draw()
 
+        if i == 0:
+              c_fit_example.cd(3)
+              dphi.Draw()
+
 c_gaus.SaveAs('gaussian_fit.pdf')
 c_gen_gaus.SaveAs('gen_gaussian_fit.pdf')
 c_mises.SaveAs('mises_fit.pdf')
 
-
+######################
+## Width Calculations
+######################
 
 gaus_params = np.array(gaus_params)
 gaus_stdev_near = gaus_params[:, 2, 0]
@@ -217,3 +249,9 @@ fig.suptitle('Width Ratios for Various Fits and $\eta$ Cuts')
 
 plt.tight_layout()
 plt.savefig('ratios-across-fits.pdf')
+
+##################
+## Width Examples
+##################
+
+c_fit_example.SaveAs('example_fits.pdf')
