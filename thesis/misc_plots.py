@@ -13,7 +13,7 @@ sys.path.append('../classes/')
 sys.path.append('../utils/')
 
 from SparseAnalyzer import SparseAnalyzer #, FitFunction, FitRange, CurveFit
-from formatting import process_pave, process_tgraph, process_hist
+from formatting import process_pave, process_tgraph, process_hist, process_hist2D
 
 from CurveFit import FitFunction, FitRange, CurveFit
 
@@ -141,6 +141,7 @@ hl08_prjxn_canvas.SaveAs('hl08_projections.pdf')
 ################
 # pT, no eta cut
 ################
+
 pt_canvas = rt.TCanvas()
 
 charged_hadron_pt = chargedHadronDist.Project3D('x')
@@ -156,17 +157,52 @@ pt_canvas.SaveAs('charged_hadron_pt.pdf')
 # 1D and 2D distributions
 #########################
 
-pt_eta_dist = chargedHadronDist.Project3D('xy')
+pt_eta_dist = chargedHadronDist.Project3D('yx')
 pt_phi_dist = chargedHadronDist.Project3D('xz')
 
-two_d_canvas = rt.TCanvas()
-two_d_canvas.Divide(1, 2)
+pt_eta_dist.Rebin2D(2, 2)
+pt_phi_dist.Rebin2D(2, 2)
+
+two_d_canvas = rt.TCanvas('twod', 'twod', 1400, 700)
+
+two_d_canvas.Divide(2, 1)
+title_pad = rt.TPad("all","all",0,0,1,1)
+title_pad.SetFillStyle(4000) # transparent
+title_pad.Draw()
+
+rt.gStyle.SetOptTitle(0)
+rt.gStyle.SetOptStat(0)
 
 two_d_canvas.cd(1)
+two_d_canvas.cd(1).SetPhi(225.)
+rt.gPad.SetLeftMargin(0.2)
+rt.gPad.SetBottomMargin(0.16)
+#two_d_canvas.cd(1).SetLeftMargin(0.)
+
+pt_eta_dist.SetXTitle('p_{T}')
+pt_eta_dist.SetYTitle('#varphi')
+pt_eta_dist.SetZTitle('#frac{dN}{dp_{T} d#eta}')
+pt_eta_dist.GetZaxis().SetTitleOffset(2.2)
+process_hist2D(pt_eta_dist)
 pt_eta_dist.Draw('SURF1')
 
 two_d_canvas.cd(2)
+two_d_canvas.cd(2).SetPhi(225.)
+rt.gPad.SetLeftMargin(0.2)
+rt.gPad.SetBottomMargin(0.16)
+
+pt_phi_dist.SetXTitle('#eta')
+pt_phi_dist.SetYTitle('p_{T}')
+pt_phi_dist.SetZTitle('#frac{dN}{dp_{T}d#eta}')
+
+pt_phi_dist.GetZaxis().SetTitleOffset(2.2)
+
+process_hist2D(pt_phi_dist)
 pt_phi_dist.Draw('SURF1')
+
+title_pad.cd()
+latex = rt.TLatex()
+latex.DrawLatexNDC(0.25, 0.92, "Charged Hadron Distributions (no acceptance cut)")
 
 two_d_canvas.SaveAs('two_d_dists.pdf')
 
