@@ -2,7 +2,8 @@ import ROOT as rt
 import numpy as np
 import matplotlib.pyplot as plt
 
-rt.gStyle.SetOptFit(1111) # show fit panel w/ fit prob, chi2/ndf, fit params, errors
+rt.gStyle.SetOptFit(111) # show fit panel w/ fit prob, chi2/ndf, fit params, errors
+rt.gStyle.SetOptStat(0)
 
 import sys
 sys.path.append('../classes/')
@@ -49,18 +50,20 @@ rt.gStyle.SetLineScalePS(1)
 distributions = [hh08, hh12, hh20, hl08, hl12, hl20]
 
 c_gaus = rt.TCanvas('gaus_canvas', 'gaus_canvas')
-c_gaus.SetCanvasSize(2400, 800)
-c_gaus.Divide(3, 2)
+#c_gaus.SetCanvasSize(2400, 800)
+c_gaus.SetCanvasSize(800, 1200)
+c_gaus.Divide(2, 3)
 
 c_gen_gaus = rt.TCanvas('gaus_gen_canvas', 'gaus_gen_canvas')
-c_gen_gaus.SetCanvasSize(2400, 800)
-c_gen_gaus.Divide(3, 2)
+c_gen_gaus.SetCanvasSize(800, 1200)
+c_gen_gaus.Divide(2, 3)
 
 c_mises = rt.TCanvas('mises_canvas', 'gaus_mises_canvas')
-c_mises.SetCanvasSize(2400, 800)
-c_mises.Divide(3, 2)
+c_mises.SetCanvasSize(800, 1200)
+c_mises.Divide(2, 3)
 
 c_fit_example = rt.TCanvas('fit_example', 'fit_example')
+c_fit_example.SetCanvasSize(1200, 400)
 c_fit_example.Divide(3, 1)
 
 fit_functions=[FitFunction.double_gaussian, FitFunction.double_generalized_gaussian, FitFunction.double_von_mises]
@@ -81,52 +84,168 @@ mises_guesses = [[20000, 0.0, 1, 8000, pi, 1], [20000, 0.0, 1, 15000, pi, 1], [2
 
 for i, (sparse, guess) in enumerate(zip(distributions, gaus_guesses)):
         c_gaus.cd(i + 1) 
+        rt.gPad.SetLeftMargin(0.2)
 
         gaussian = CurveFit(sparse=sparse, dphi=sparse.make_delta_phi(), fit_function=FitFunction.double_gaussian, fit_range=FitRange.full_range, fit_params=guess)
         dphi, params = gaussian.fit()
         
         gaus_params.append(params)
         dphi.GetYaxis().SetTitle('counts')
-        dphi.Draw()
-
-        #pave = sparse.make_pave()
-        pave = rt.TPaveText(0.1, 0.1, 0.4, 0.4)
-        pave.AddText('test')
-        pave.Draw()
+        dphi.GetYaxis().SetTitleOffset(2.0)
 
         if i < 3: 
+            dphi.SetMarkerColor(rt.kBlue)
+            dphi.SetLineColor(rt.kBlue)
             dphi.SetTitle('Hadron-Hadron Correlation')
 
         else:
+            dphi.SetMarkerColor(rt.kRed)
+            dphi.SetLineColor(rt.kRed)
             dphi.SetTitle('Hadron-#Lambda Correlation')
+        
+        dphi.Draw()
+
+        label_y_start = 0.85 #0.96 
+        label_x_start = 0.3 #0.65
+        pt_label_x_start = 0.07
+        label_text_space = 0.06
+        data_label = rt.TLatex()
+        data_label.SetNDC()
+        data_label.SetTextSize(0.05)
+        data_label.SetTextAlign(13)
+        data_label.DrawLatex(label_x_start, label_y_start, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])))
+        data_label.DrawLatex(label_x_start, label_y_start - label_text_space, '|#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+        # data_label.DrawLatex(label_x_start, label_y_start, 'pp, PYTHIA6, #sqrt{s}=7 TeV')
+        # data_label.DrawLatex(label_x_start, label_y_start - label_text_space, '4 < p_{T}^{trig} < 8 GeV/c, 2 < p_{T}^{assoc} < 4 GeV/c')
+        # data_label.DrawLatex(label_x_start, label_y_start - 2*label_text_space, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])) + ', |#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+
         if i == 0:
-              c_fit_example.cd(1)
-              dphi.Draw()
+            c_fit_example.cd(1)
+            rt.gPad.SetLeftMargin(0.2)
+            dphi.GetYaxis().SetTitleOffset(2.1)
+            dphi.Draw()
+
+            label = rt.TLatex()
+            label_y_start = 0.85 #0.96 
+            label_x_start = 0.25
+            data_label.SetTextSize(0.05)
+            data_label.SetTextAlign(13)
+            data_label.DrawLatex(label_x_start, label_y_start, 'Gaussian')
+            data_label.DrawLatex(0.6, 0.6, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])))
+            data_label.DrawLatex(0.6, 0.6 - label_text_space, '|#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+
+c_gaus.Draw()
 
 for i, (sparse, guess) in enumerate(zip(distributions, gen_gaus_guesses)):
         c_gen_gaus.cd(i + 1) 
+        rt.gPad.SetLeftMargin(0.2)
 
         gen_gaussian = CurveFit(sparse=sparse, dphi=sparse.make_delta_phi(), fit_function=FitFunction.double_generalized_gaussian, fit_range=FitRange.full_range, fit_params=guess)
         dphi, params = gen_gaussian.fit()
 
         gen_gaus_params.append(params)
+        dphi.GetYaxis().SetTitle('counts')
+        dphi.GetYaxis().SetTitleOffset(2.0)
         dphi.Draw()
 
+        if i < 3: 
+            dphi.SetMarkerColor(rt.kBlue)
+            dphi.SetLineColor(rt.kBlue)
+            dphi.SetTitle('Hadron-Hadron Correlation')
+
+        else:
+            dphi.SetMarkerColor(rt.kRed)
+            dphi.SetLineColor(rt.kRed)
+            dphi.SetTitle('Hadron-#Lambda Correlation')
+        
+        dphi.Draw()
+
+        label_y_start = 0.85 #0.96 
+        label_x_start = 0.3 #0.65
+        pt_label_x_start = 0.07
+        label_text_space = 0.06
+        data_label = rt.TLatex()
+        data_label.SetNDC()
+        data_label.SetTextSize(0.05)
+        data_label.SetTextAlign(13)
+        data_label.DrawLatex(label_x_start, label_y_start, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])))
+        data_label.DrawLatex(label_x_start, label_y_start - label_text_space, '|#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+        # data_label.DrawLatex(label_x_start, label_y_start, 'pp, PYTHIA6, #sqrt{s}=7 TeV')
+        # data_label.DrawLatex(label_x_start, label_y_start - label_text_space, '4 < p_{T}^{trig} < 8 GeV/c, 2 < p_{T}^{assoc} < 4 GeV/c')
+        # data_label.DrawLatex(label_x_start, label_y_start - 2*label_text_space, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])) + ', |#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+
         if i == 0:
-              c_fit_example.cd(2)
-              dphi.Draw()
+            c_fit_example.cd(2)
+            rt.gPad.SetLeftMargin(0.2)
+            dphi.GetYaxis().SetTitleOffset(2.1)
+
+            dphi.Draw()
+
+            label = rt.TLatex()
+            label_y_start = 0.85 #0.96 
+            label_x_start = 0.25
+            data_label.SetTextSize(0.05)
+            data_label.SetTextAlign(13)
+            data_label.DrawLatex(label_x_start, label_y_start, 'Gen. Gaussian')
+            data_label.DrawLatex(0.6, 0.6, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])))
+            data_label.DrawLatex(0.6, 0.6 - label_text_space, '|#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+
 
 for i, (sparse, guess) in enumerate(zip(distributions, mises_guesses)):
         c_mises.cd(i + 1) 
+        rt.gPad.SetLeftMargin(0.2)
 
         mises = CurveFit(sparse=sparse, dphi=sparse.make_delta_phi(), fit_function=FitFunction.double_von_mises, fit_range=FitRange.full_range, fit_params=guess)
         dphi, params = mises.fit()
         mises_params.append(params)
+
+        dphi.GetYaxis().SetTitle('counts')
+        dphi.GetYaxis().SetTitleOffset(2.0)
         dphi.Draw()
 
+        if i < 3: 
+            dphi.SetMarkerColor(rt.kBlue)
+            dphi.SetLineColor(rt.kBlue)
+            dphi.SetTitle('Hadron-Hadron Correlation')
+
+        else:
+            dphi.SetMarkerColor(rt.kRed)
+            dphi.SetLineColor(rt.kRed)
+            dphi.SetTitle('Hadron-#Lambda Correlation')
+        
+        dphi.Draw()
+
+        label_y_start = 0.85 #0.96 
+        label_x_start = 0.3 #0.65
+        pt_label_x_start = 0.07
+        label_text_space = 0.06
+        data_label = rt.TLatex()
+        data_label.SetNDC()
+        data_label.SetTextSize(0.05)
+        data_label.SetTextAlign(13)
+        data_label.DrawLatex(label_x_start, label_y_start, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])))
+        data_label.DrawLatex(label_x_start, label_y_start - label_text_space, '|#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+        # data_label.DrawLatex(label_x_start, label_y_start, 'pp, PYTHIA6, #sqrt{s}=7 TeV')
+        # data_label.DrawLatex(label_x_start, label_y_start - label_text_space, '4 < p_{T}^{trig} < 8 GeV/c, 2 < p_{T}^{assoc} < 4 GeV/c')
+        # data_label.DrawLatex(label_x_start, label_y_start - 2*label_text_space, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])) + ', |#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+
         if i == 0:
-              c_fit_example.cd(3)
-              dphi.Draw()
+            c_fit_example.cd(3)
+            rt.gPad.SetLeftMargin(0.2)
+            dphi.GetYaxis().SetTitleOffset(2.1)
+
+            dphi.Draw()
+
+            label = rt.TLatex()
+            label_y_start = 0.85 #0.96 
+            label_x_start = 0.25
+            data_label.SetTextSize(0.05)
+            data_label.SetTextAlign(13)
+            label = rt.TLatex()
+            data_label.DrawLatex(label_x_start, label_y_start, 'Von Mises')
+            data_label.DrawLatex(0.6, 0.6, '|#eta^{trig}| < ' + str(np.abs(sparse.etaTrig[0])))
+            data_label.DrawLatex(0.6, 0.6 - label_text_space, '|#eta^{assoc}| < ' + str(np.abs(sparse.etaAssoc[0])))
+        
 
 c_gaus.SaveAs('gaussian_fit.pdf')
 c_gen_gaus.SaveAs('gen_gaussian_fit.pdf')
