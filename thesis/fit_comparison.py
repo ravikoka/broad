@@ -122,8 +122,13 @@ for i, (sparse, guess) in enumerate(zip(distributions, gaus_guesses)):
         if i == 0:
             c_fit_example.cd(1)
             rt.gPad.SetLeftMargin(0.2)
+            dphi.SetTitle('Hadron-Hadron')
             dphi.GetYaxis().SetTitleOffset(2.1)
-            dphi.Draw()
+            #dphi.Draw()
+
+            rp = rt.TRatioPlot(dphi)
+            rp.SetLeftMargin(0.2)
+            rp.Draw()
 
             label = rt.TLatex()
             label_y_start = 0.85 #0.96 
@@ -179,7 +184,10 @@ for i, (sparse, guess) in enumerate(zip(distributions, gen_gaus_guesses)):
             rt.gPad.SetLeftMargin(0.2)
             dphi.GetYaxis().SetTitleOffset(2.1)
 
-            dphi.Draw()
+            #dphi.Draw()
+            rp2 = rt.TRatioPlot(dphi)
+            rp2.SetLeftMargin(0.2)
+            rp2.Draw()
 
             label = rt.TLatex()
             label_y_start = 0.85 #0.96 
@@ -234,7 +242,10 @@ for i, (sparse, guess) in enumerate(zip(distributions, mises_guesses)):
             rt.gPad.SetLeftMargin(0.2)
             dphi.GetYaxis().SetTitleOffset(2.1)
 
-            dphi.Draw()
+            #dphi.Draw()
+            rp3 = rt.TRatioPlot(dphi)
+            rp3.SetLeftMargin(0.2)
+            rp3.Draw()
 
             label = rt.TLatex()
             label_y_start = 0.85 #0.96 
@@ -296,11 +307,22 @@ mises_kappa_away = mises_params[:, 5, 0]
 mises_stdev_near = np.array([mises_stdev(kappa) for kappa in mises_kappa_near])
 mises_stdev_away = np.array([mises_stdev(kappa) for kappa in mises_kappa_away])
 
+SMALL_SIZE = 12
+MEDIUM_SIZE = 14
+BIGGER_SIZE = 12
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 plt.rcParams['figure.dpi'] = 400
 
 fig = plt.figure()
-gs = fig.add_gridspec(2, 2, hspace=0, wspace=0.1)
+gs = fig.add_gridspec(2, 2, hspace=0.1, wspace=0.1)
 ((ax1, ax2),(ax3, ax4)) = gs.subplots(sharex='col', sharey='row')
 
 eta = [0.8, 1.2, 2.0]
@@ -309,7 +331,7 @@ ax1.scatter(eta, gen_gaus_stdev_near[:3], color='b')
 ax1.scatter(eta, mises_stdev_near[:3], color='r')
 
 ax2.scatter(eta, gaus_stdev_near[3:], color='k', label='Gaussian')
-ax2.scatter(eta, gen_gaus_stdev_near[3:], color='b', label='Gen Gaussian')
+ax2.scatter(eta, gen_gaus_stdev_near[3:], color='b', label='Gen. Gaussian')
 ax2.scatter(eta, mises_stdev_near[3:], color='r',  label='Von Mises')
 
 ax3.scatter(eta, gaus_stdev_away[:3], color='k')
@@ -325,19 +347,23 @@ ax4.set_xlim(0.6, 2.2)
 ax3.set_xticks(eta)
 ax4.set_xticks(eta)
 
+ax1.set_ylim(0.0, 0.23)
+ax3.set_ylim(0.0, 0.40)
+
 ax1.set_ylabel('$\sigma_{NS}$')
 ax3.set_ylabel('$\sigma_{AS}$')
 
 ax3.set_xlabel('$|\eta|<x$')
 ax4.set_xlabel('$|\eta|<x$')
 
-ax1.set_title('h-h')
-ax2.set_title('h-$\Lambda$')
+ax1.set_title('h$-$h')
+ax2.set_title('h$-\Lambda$')
 
 ax2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
-plt.tight_layout()
-plt.savefig('widths-across-fits.pdf')
+#plt.tight_layout()
+fig.suptitle('$\sigma_{\mathrm{NS}}$ and $\sigma_{\mathrm{AS}}$ Across Cuts and Fits')
+plt.savefig('widths-across-fits.pdf', bbox_inches='tight')
 
 
 fig, axs = plt.subplots(2, sharex=True)
@@ -346,7 +372,7 @@ eta = [0.8, 1.2, 2.0]
 ns_stdevs = [gaus_stdev_near, gen_gaus_stdev_near, mises_stdev_near]
 as_stdevs = [gaus_stdev_away, gen_gaus_stdev_away, mises_stdev_away]
 colors = ['k', 'b', 'r']
-labels = ['Guassian', 'Gen Gaussian', 'Von Mises']
+labels = ['Guassian', 'Gen. Gaussian', 'Von Mises']
 
 for ns_stdev, as_stdev, color, label in zip(ns_stdevs, as_stdevs, colors, labels):
     near_ratios = ns_stdev[3:] / ns_stdev[:3] # h-L / h-h near side
@@ -360,13 +386,16 @@ axs[1].set_xticks(eta)
 
 axs[0].legend()
 
+axs[0].set_ylim(0.0, 1.25)
+axs[1].set_ylim(0.0, 1.08)
+
 axs[1].set_xlabel('$|\eta|<x$')
 axs[0].set_ylabel('$\sigma^{h-\Lambda}_{NS} / \sigma^{h-h}_{NS}$')
 axs[1].set_ylabel('$\sigma^{h-\Lambda}_{AS} / \sigma^{h-h}_{AS}$')
 
 fig.suptitle('Width Ratios for Various Fits and $\eta$ Cuts')
 
-plt.tight_layout()
+#plt.tight_layout()
 plt.savefig('ratios-across-fits.pdf')
 
 ##################

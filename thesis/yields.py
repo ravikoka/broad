@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 rt.gStyle.SetOptFit(1111) # show fit panel w/ fit prob, chi2/ndf, fit params, errors
+#rt.gStyle.SetLineScalePS(1)
 
 import sys
 sys.path.append('../classes/')
@@ -30,11 +31,12 @@ triggeredLambdaDist = inFile.triggeredLambdaDist
 hlDist = inFile.hLambdaDist
 hhDist = inFile.hhDist
 
-widthRatiosPave = rt.TPaveText(0.5, 0.760593, 0.899425, 0.860169, 'NDC')
-widthRatiosPave.AddText('pp, PYTHIA6, #sqrt{s}=14 TeV')
+widthRatiosPave = rt.TPaveText(0.4, 0.7, 0.8, 0.85, 'NDC')
+widthRatiosPave.AddText('pp, PYTHIA6, #sqrt{s}=7 TeV')
 widthRatiosPave.AddText('4 < p_{T}^{trig} < 8 GeV/c, 2 < p_{T}^{assoc} < 4 GeV/c')
 widthRatiosPave.AddText('|#eta^{trig}| < 0.8')
 process_pave(widthRatiosPave, size=0.06)
+widthRatiosPave.SetTextSize(0.04)
 
 def make_away_side_ratio_plots(sparse1, sparse2, eta_assoc_ranges):
     '''
@@ -76,21 +78,24 @@ def make_away_side_ratio_plots(sparse1, sparse2, eta_assoc_ranges):
 
 
 ratioCanvas = rt.TCanvas()
-rt.gPad.SetLeftMargin(0.19)
-rt.gPad.SetBottomMargin(0.13)
+rt.gPad.SetLeftMargin(0.15)
+rt.gPad.SetBottomMargin(0.15)
+rt.gPad.SetTopMargin(0.13)
 #ratioCanvas.SetCanvasSize(800, 400)
 
 ratioGraph = make_away_side_ratio_plots(hlDist, hhDist, eta_assoc_ranges=[[-2, 2-EPSILON], [-1.2, 1.2-EPSILON], [-0.8, 0.8-EPSILON]])
-ratioGraph.SetMarkerStyle(107)
-ratioGraph.SetTitle('Away Side Yield Ratios per #eta Cut')
+ratioGraph.SetTitle('Away-side yield ratios for each #eta^{assoc} range')
 ratioGraph.GetXaxis().SetTitle('|#eta^{assoc}| < x')
 ratioGraph.GetYaxis().SetTitle('Y^{h-#Lambda}_{AS} / Y^{h-h}_{AS}')
 
 process_tgraph(ratioGraph)
-ratioGraph.GetYaxis().SetTitleOffset(1.0)
+ratioGraph.SetMarkerStyle(rt.kFullCircle)
+#ratioGraph.GetYaxis().SetTitleOffset(1.0)
 
-ratioGraph.SetMaximum(22e-3)
-ratioGraph.SetMinimum(16e-3)
+#ratioGraph.SetMaximum(22e-3)
+#ratioGraph.SetMinimum(16e-3)
+ratioGraph.GetYaxis().SetRangeUser(0.012, 0.028)
+ratioGraph.GetYaxis().SetMaxDigits(2)
 
 # ratioGraph.GetYaxis().SetRangeUser(18, 21)
 
@@ -102,18 +107,38 @@ ratioCanvas.SaveAs('away_yield_ratios.pdf')
 
 
 denseRatioCanvas = rt.TCanvas()
-denseRatioCanvas.SetCanvasSize(800, 400)
+rt.gPad.SetLeftMargin(0.15)
+rt.gPad.SetBottomMargin(0.15)
+rt.gPad.SetTopMargin(0.14)
+#denseRatioCanvas.SetCanvasSize(800, 400)
+
 
 dense_eta = np.array([[-i*10**-1 , i*10**-1 - EPSILON] for i in range(8, 22, 2)])
 denseRatioGraph = make_away_side_ratio_plots(hlDist, hhDist, eta_assoc_ranges=dense_eta)
 
 linear = rt.TF1('linear_fit', 'pol1(0)')
-denseRatioGraph.Fit('linear_fit')
+denseAwayFit = denseRatioGraph.Fit('linear_fit')
+
+process_tgraph(denseRatioGraph)
 
 denseRatioGraph.SetMarkerStyle(107)
-denseRatioGraph.SetTitle('#(h - \Lambda)_{away} / (h - h)_{away}; |#eta|; away side ratio')
+denseRatioGraph.SetTitle('Away-side yield ratio for each #eta^{assoc} range')
+denseRatioGraph.GetYaxis().SetTitle('Y^{h-#Lambda}_{AS} / Y^{h-h}_{AS}')
+denseRatioGraph.GetXaxis().SetTitle('|#eta| < x')
+denseRatioGraph.GetYaxis().SetRangeUser(0.01, 0.028)
+denseRatioGraph.GetYaxis().SetMaxDigits(2)
+
+denseAwayPave = rt.TPaveText(0.19, 0.6, 0.59, 0.85, 'NDC')
+denseAwayPave.AddText('pp, PYTHIA6, #sqrt{s}=7 TeV')
+denseAwayPave.AddText('4 < p_{T}^{trig} < 8 GeV/c, 2 < p_{T}^{assoc} < 4 GeV/c')
+denseAwayPave.AddText('|#eta^{trig}| < 0.8')
+denseAwayPave.AddText('f(x) = p_{1}x + p_{0}')
+process_pave(denseAwayPave, size=0.06)
+denseAwayPave.SetTextSize(0.04)
+
 
 denseRatioGraph.Draw('ap')
+denseAwayPave.Draw()
 denseRatioCanvas.Draw()
 denseRatioCanvas.SaveAs('dense_yield_away.pdf')
 
@@ -158,22 +183,26 @@ def make_near_side_ratio_plots(sparse1, sparse2, eta_assoc_ranges):
 
 
 nsYieldRatioCanvas = rt.TCanvas()
-rt.gPad.SetLeftMargin(0.19)
-rt.gPad.SetBottomMargin(0.13)
+rt.gPad.SetLeftMargin(0.15)
+rt.gPad.SetBottomMargin(0.15)
+rt.gPad.SetTopMargin(0.13)
 
 nsYieldRatioGraph = make_near_side_ratio_plots(hlDist, hhDist, eta_assoc_ranges=[[-2, 2-EPSILON], [-1.2, 1.2-EPSILON], [-0.8, 0.8-EPSILON]])
 nsYieldRatioGraph.SetMarkerStyle(21)
 nsYieldRatioGraph.SetMarkerColor(4)
 nsYieldRatioGraph.SetLineColor(4)
 
-nsYieldRatioGraph.SetTitle('Near Side Yield Ratios per #eta Cut')
+nsYieldRatioGraph.SetTitle('Near-side yield ratios for each #eta^{assoc} range')
 nsYieldRatioGraph.GetXaxis().SetTitle('|#eta^{assoc}| < x')
 nsYieldRatioGraph.GetYaxis().SetTitle('Y^{h-#Lambda}_{NS} / Y^{h-h}_{NS}')
 
-nsYieldRatioGraph.SetMinimum(3e-3)
-nsYieldRatioGraph.SetMaximum(6e-3)
+#nsYieldRatioGraph.SetMinimum(3e-3)
+#nsYieldRatioGraph.SetMaximum(6e-3)
 
 process_tgraph(nsYieldRatioGraph)
+
+nsYieldRatioGraph.GetYaxis().SetRangeUser(0.001, 0.008)
+nsYieldRatioGraph.GetYaxis().SetMaxDigits(2)
 
 #nsYieldRatioGraph.GetYaxis().SetRangeUser(4, 6)
 
@@ -183,7 +212,9 @@ nsYieldRatioCanvas.Draw()
 nsYieldRatioCanvas.SaveAs('near_yield_ratios.pdf')
 
 nsDenseRatioCanvas = rt.TCanvas()
-nsDenseRatioCanvas.SetCanvasSize(800, 400)
+rt.gPad.SetLeftMargin(0.15)
+rt.gPad.SetBottomMargin(0.15)
+rt.gPad.SetTopMargin(0.14)
 
 dense_eta = np.array([[-i*10**-1 , i*10**-1 - EPSILON] for i in range(8, 22, 2)])
 nsDenseRatioGraph = make_near_side_ratio_plots(hlDist, hhDist, eta_assoc_ranges=dense_eta)
@@ -191,10 +222,19 @@ nsDenseRatioGraph = make_near_side_ratio_plots(hlDist, hhDist, eta_assoc_ranges=
 linear = rt.TF1('linear_fit_ns', 'pol1(0)')
 nsDenseRatioGraph.Fit('linear_fit_ns')
 
-nsDenseRatioGraph.SetMarkerStyle(107)
-nsDenseRatioGraph.SetTitle('#(h - \Lambda)_{away} / (h - h)_{away}; |#eta|; near side ratio')
+process_tgraph(nsDenseRatioGraph)
+
+nsDenseRatioGraph.SetMarkerStyle(21)
+nsDenseRatioGraph.SetMarkerColor(4)
+# nsDenseRatioGraph.SetMarkerStyle(107)
+nsDenseRatioGraph.SetTitle('Near-side yield ratio for each #eta^{assoc} range')
+nsDenseRatioGraph.GetYaxis().SetTitle('Y^{h-#Lambda}_{AS} / Y^{h-h}_{AS}')
+nsDenseRatioGraph.GetXaxis().SetTitle('|#eta| < x')
+nsDenseRatioGraph.GetYaxis().SetRangeUser(0.0, 0.01)
+nsDenseRatioGraph.GetYaxis().SetMaxDigits(2)
 
 nsDenseRatioGraph.Draw('ap')
+denseAwayPave.Draw()
 nsDenseRatioCanvas.Draw()
 nsDenseRatioCanvas.SaveAs('dense_yield_near.pdf')
 

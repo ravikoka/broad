@@ -133,11 +133,11 @@ etaErrs = np.zeros(len(etaAxis))
 ##########################
 
 widthRatiosCanvas = rt.TCanvas('widthRatiosCanvas', 'widthRatiosCanvas')
-rt.gPad.SetLeftMargin(0.19)
-rt.gPad.SetBottomMargin(0.13)
+rt.gPad.SetLeftMargin(0.15)
+rt.gPad.SetBottomMargin(0.15)
 
-widthRatiosPave = rt.TPaveText(0.4, 0.7, 0.799425, 0.860169, 'NDC') 
-widthRatiosPave.AddText('pp, PYTHIA6, #sqrt{s}=14 TeV')
+widthRatiosPave = rt.TPaveText(0.25, 0.65, 0.55, 0.85, 'NDC') 
+widthRatiosPave.AddText('pp, PYTHIA6, #sqrt{s}=7 TeV')
 widthRatiosPave.AddText('4 < p_{T}^{trig} < 8 GeV/c, 2 < p_{T}^{assoc} < 4 GeV/c')
 widthRatiosPave.AddText('|#eta^{trig}| < 0.8')
 process_pave(widthRatiosPave, size=0.04)#0.06)
@@ -146,14 +146,17 @@ process_pave(widthRatiosPave, size=0.04)#0.06)
 widthRatiosGraph = rt.TGraphErrors(len(widthRatios), etaAxis, widthRatios, ex=etaErrs, ey=ratioErrs)
 widthRatiosGraph.SetMarkerStyle(107)
 
-widthRatiosGraph.SetTitle('Away-side Width Ratio per #eta cut')
+widthRatiosGraph.SetTitle('Away-side width ratio for each #eta^{assoc} range')
 #widthRatiosGraph.GetYaxis().SetTitle('Width Ratio #left(#frac{h-#Lambda}{h-h}#right)')
 widthRatiosGraph.GetYaxis().SetTitle('#sigma^{h-#Lambda}_{AS} / #sigma^{h-h}_{AS}')
 widthRatiosGraph.GetXaxis().SetTitle('|#eta^{assoc}| < x')
 
 process_tgraph(widthRatiosGraph)
 
-widthRatiosGraph.GetYaxis().SetRangeUser(0.8, 1.2)
+#widthRatiosGraph.GetYaxis().SetTitleOffset(1.1)
+#widthRatiosGraph.GetYaxis().SetTitleSize(0.055)
+
+widthRatiosGraph.GetYaxis().SetRangeUser(0.8, 1.4)#0.8, 1.2)
 #widthRatiosGraph.GetYaxis().LabelsOption('v')
 
 line = rt.TLine(0.68, 1.0, 2.12, 1.0)
@@ -173,8 +176,8 @@ widthRatiosCanvas.SaveAs('away_side_width_ratios.pdf')
 ##########################
 
 nsWidthRatiosCanvas = rt.TCanvas('nsWidthRatiosCanvas', 'nsWidthRatiosCanvas')
-rt.gPad.SetLeftMargin(0.19)
-rt.gPad.SetBottomMargin(0.13)
+rt.gPad.SetLeftMargin(0.15)
+rt.gPad.SetBottomMargin(0.15)
 
 nsWidthRatios = hlNearWidths / hhNearWidths
 nsWidthErrs = errorProp(hlNearWidths, hlNearErrs, hhNearWidths, hhNearErrs)
@@ -184,16 +187,19 @@ nsWidthRatiosGraph.SetMarkerStyle(21)
 nsWidthRatiosGraph.SetMarkerColor(4)
 nsWidthRatiosGraph.SetLineColor(4)
 
-nsWidthRatiosGraph.SetTitle('Near-side Width Ratio per #eta cut')
+nsWidthRatiosGraph.SetTitle('Near-side Width Ratio for each #eta^{assoc} range')
 nsWidthRatiosGraph.GetYaxis().SetTitle('#sigma^{h-#Lambda}_{NS} / #sigma^{h-h}_{NS}')
 nsWidthRatiosGraph.GetXaxis().SetTitle('|#eta^{assoc}| < x')
 
 process_tgraph(nsWidthRatiosGraph)
-nsWidthRatiosGraph.SetMaximum(1.5)
-nsWidthRatiosGraph.SetMinimum(0.2)
+nsWidthRatiosGraph.SetMaximum(1.4)
+nsWidthRatiosGraph.SetMinimum(0.8)
+
+line.SetLineColor(rt.kBlack)
 
 nsWidthRatiosGraph.Draw('ap')
 widthRatiosPave.Draw()
+line.Draw()
 nsWidthRatiosCanvas.Draw()
 nsWidthRatiosCanvas.SaveAs('near_side_width_ratios.pdf')
 
@@ -205,8 +211,6 @@ nsWidthRatiosCanvas.SaveAs('near_side_width_ratios.pdf')
 #hhRatiosCanvas = rt.TCanvas()
 #rt.gPad.SetLeftMargin(0.19)
 #rt.gPad.SetBottomMargin(0.13)
-
-hhRatiosPave = widthRatiosPave.Clone()
 
 hhRatiosGraph = rt.TGraphErrors(len(hhRatios), etaAxis, hhRatios, ex=etaErrs, ey=hhErrs)
 hhRatiosGraph.SetTitle('h-h Width Ratios per #eta Cut')
@@ -270,11 +274,11 @@ widthsMultiGraph.Add(hhRatiosGraph, 'p')
 widthsMultiGraph.Add(hlRatiosGraph, 'p')
 
 
-widthsMultiGraph.SetTitle('Comparison of Widths Ratios per #eta Cut')
+widthsMultiGraph.SetTitle('Comparison of Widths Ratios for each #eta^{assoc} range')
 widthsMultiGraph.GetXaxis().SetTitle('|#eta^{assoc}| < x')
 #widthsMultiGraph.GetYaxis().SetTitle('Width Ratios #left(#frac{NS}{AS}#right)')
 widthsMultiGraph.GetYaxis().SetTitle('#sigma_{AS} / #sigma_{NS}')
-widthsMultiGraph.GetYaxis().SetRangeUser(1.2, 2.5)
+widthsMultiGraph.GetYaxis().SetRangeUser(1.2, 2.6)#1.2, 2.5)
 
 process_tgraph(widthsMultiGraph)
 
@@ -283,36 +287,27 @@ widthsMultiGraph.Draw('ap')
 legend = compareRatiosCanvas.BuildLegend(0.571839, 0.68644, 0.87212, 0.89618)
 legend.SetBorderSize(0)
 legend.SetFillStyle(0)
-legend.SetTextSize(0.035)
+legend.SetTextSize(0.04)#0.035)
 
-widthsMultiGraphPave = rt.TPaveText(0.5, 0.760593, 0.899425, 0.860169)#0.189655, 0.764830, 0.589080, 0.86440677, 'NDC')
+widthsMultiGraphPave = rt.TPaveText(0.4, 0.3, 0.799425, 0.5, 'NDC')#0.189655, 0.764830, 0.589080, 0.86440677, 'NDC')
 widthsMultiGraphPave.AddText('4 < p_{T}^{trig} < 8 GeV/c, 2 < p_{T}^{assoc} < 4 GeV/c')
 widthsMultiGraphPave.AddText('|#eta^{trig}| < 0.8')
 widthsMultiGraphPave = process_pave(widthRatiosPave, size=0.06)
+widthsMultiGraphPave.SetTextSize(0.039)
 
 # set coordinates of pave and legend, ROOT ignores the previous coords for reasons unknown to me
 rt.gPad.Update()
-widthsMultiGraphPave.SetX1NDC(0.1896551724137931)
-widthsMultiGraphPave.SetY1NDC(0.760593220338983)
-widthsMultiGraphPave.SetX2NDC(0.5890804597701149)
-widthsMultiGraphPave.SetY2NDC(0.8601694915254238)
+widthsMultiGraphPave.SetX1NDC(0.29)#0.1896551724137931)
+widthsMultiGraphPave.SetY1NDC(0.7)#0.760593220338983)
+widthsMultiGraphPave.SetX2NDC(0.59)#0.5890804597701149)
+widthsMultiGraphPave.SetY2NDC(0.85)#0.8601694915254238)
 
-legend.SetX1NDC(0.6681034482758621)
-legend.SetY1NDC(0.6949152542372881)
-legend.SetX2NDC(0.9683908045977011)
-legend.SetY2NDC(0.9046610169491526)
+legend.SetX1NDC(0.69)
+legend.SetY1NDC(0.72)
+legend.SetX2NDC(0.99)
+legend.SetY2NDC(0.87)
 rt.gPad.Modified()
 
 widthsMultiGraphPave.Draw()
 compareRatiosCanvas.Draw()
 compareRatiosCanvas.SaveAs('away-over-near.pdf')
-
-
-###############################
-## Away-Over-Near Width Ratios
-###############################
-
-
-
-
-
