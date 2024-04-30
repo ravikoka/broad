@@ -120,7 +120,7 @@ class SparseAnalyzer:
         pave = rt.TPaveText(0.1, 0.75, 0.5, 0.9, 'NDC')
         pave = self._process_pave(pave)
 
-        pave.AddText('pp, PYTHIA6, #sqrt{s}=14 TeV')
+        pave.AddText('pp, PYTHIA6, #sqrt{s}=7 TeV')
         pave.AddText('4 < p_{T}^{trig} < 8 GeV/c, 2 < p_{T}^{assoc} < 4 GeV/c')
     
         if self.apply_cut:
