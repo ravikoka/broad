@@ -193,7 +193,7 @@ nsYieldRatioGraph.SetMarkerColor(4)
 nsYieldRatioGraph.SetLineColor(4)
 
 nsYieldRatioGraph.SetTitle('Near-side yield ratios for each #eta^{assoc} range')
-nsYieldRatioGraph.GetXaxis().SetTitle('|#eta^{assoc}| < x')
+nsYieldRatioGraph.GetXaxis().SetTitle('| #eta^{assoc} | < x')
 nsYieldRatioGraph.GetYaxis().SetTitle('Y^{h-#Lambda}_{NS} / Y^{h-h}_{NS}')
 
 #nsYieldRatioGraph.SetMinimum(3e-3)
@@ -201,7 +201,7 @@ nsYieldRatioGraph.GetYaxis().SetTitle('Y^{h-#Lambda}_{NS} / Y^{h-h}_{NS}')
 
 process_tgraph(nsYieldRatioGraph)
 
-nsYieldRatioGraph.GetYaxis().SetRangeUser(0.001, 0.008)
+nsYieldRatioGraph.GetYaxis().SetRangeUser(0.002, 0.007)
 nsYieldRatioGraph.GetYaxis().SetMaxDigits(2)
 
 #nsYieldRatioGraph.GetYaxis().SetRangeUser(4, 6)

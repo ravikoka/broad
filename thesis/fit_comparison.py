@@ -2,6 +2,8 @@ import ROOT as rt
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scipy.special import polygamma
+
 rt.gStyle.SetOptFit(111) # show fit panel w/ fit prob, chi2/ndf, fit params, errors
 rt.gStyle.SetOptStat(0)
 
@@ -278,6 +280,26 @@ def gen_gaus_stdev(alpha, beta):
     
     return rt.TMath.Sqrt(var)
 
+def gen_gaus_stdev_err(alpha, alpha_err, beta, beta_err):
+     '''
+     Returns
+
+     Calculated with mathematica. 
+     '''
+
+     stdev = gen_gaus_stdev(alpha, beta)
+
+     partial_alpha = alpha * rt.TMath.tgamma(3 / beta) / (rt.TMath.tgamma(1 / beta) * stdev)
+
+     partial_beta_num = alpha**2 * rt.TMath.tgamma(3 / beta) * polygamma(0, 1 / beta) - 3 * alpha**2 * rt.TMath.tgamma(3 / beta ) * polygamma(0, 3 / beta)
+     partial_beta_denom = 2 * beta**2 * rt.TMath.tgamma(1 / beta) * stdev
+     partial_beta = partial_beta_num / partial_beta_denom
+
+     err_squared = (partial_alpha * alpha_err)**2 + (partial_beta * beta_err)**2 
+
+     return np.sqrt(err_squared)
+
+
 gen_gaus_params = np.array(gen_gaus_params)
 
 gen_gaus_params_alpha_near = gen_gaus_params[:, 1, 0]
@@ -299,6 +321,25 @@ def mises_stdev(kappa):
     #var = -2 * rt.TMath.Log(rt.TMath.BesselI1(kappa) / rt.TMath.BesselI0(kappa))
 
     return rt.TMath.Sqrt(var)
+
+def mises_stdev_err(kappa, kappa_err):
+     '''
+     Returns the error in the standard deviation of the Von Mises distribution, given kappa and its error. 
+     
+     This is used by ALICE in published results. Since the published formula returns negative values, we take the absolute value. 
+     '''
+     I1 = rt.TMath.BesselI1(kappa)
+     I0 = rt.TMath.BesselI0(kappa)
+     
+     stdev = mises_stdev(kappa)
+     err = (1 / stdev) * (I1/I0 - I0/I1 + 1/kappa) * kappa
+
+     return np.abs(err)
+
+# I1NS = TMath::BesselI1(NS_Kappa);
+# I0NS = TMath::BesselI0(NS_Kappa);
+# NSSigma = TMath::Sqrt(-2*TMath::Log(I1NS/I0NS));
+# NSSigError = (1./NSSigma)*(I1NS/I0NS - I0NS/I1NS + 1./NS_Kappa)*(NS_Kappa);
 
 mises_params = np.array(mises_params)
 mises_kappa_near = mises_params[:, 2, 0]
@@ -347,8 +388,8 @@ ax4.set_xlim(0.6, 2.2)
 ax3.set_xticks(eta)
 ax4.set_xticks(eta)
 
-ax1.set_ylim(0.0, 0.23)
-ax3.set_ylim(0.0, 0.40)
+ax1.set_ylim(0.16, 0.22)
+ax3.set_ylim(0.34, 0.4)
 
 ax1.set_ylabel('$\sigma_{NS}$')
 ax3.set_ylabel('$\sigma_{AS}$')
@@ -386,8 +427,8 @@ axs[1].set_xticks(eta)
 
 axs[0].legend()
 
-axs[0].set_ylim(0.0, 1.25)
-axs[1].set_ylim(0.0, 1.08)
+axs[0].set_ylim(0.9, 1.25)
+axs[1].set_ylim(0.9, 1.1)
 
 axs[1].set_xlabel('$|\eta|<x$')
 axs[0].set_ylabel('$\sigma^{h-\Lambda}_{NS} / \sigma^{h-h}_{NS}$')
