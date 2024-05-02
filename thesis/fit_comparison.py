@@ -1,3 +1,5 @@
+# fits indicate not true gaussian
+
 import ROOT as rt
 import numpy as np
 import matplotlib.pyplot as plt
@@ -272,6 +274,10 @@ gaus_params = np.array(gaus_params)
 gaus_stdev_near = gaus_params[:, 2, 0]
 gaus_stdev_away = gaus_params[:, 5, 0]
 
+gaus_stdev_near_err = gaus_params[:, 2, 1]
+gaus_stdev_away_err = gaus_params[:, 5, 1]
+
+
 def gen_gaus_stdev(alpha, beta):
     '''
     Returns the standard deviation of a generalized gaussian, given alpha and beta. 
@@ -282,17 +288,17 @@ def gen_gaus_stdev(alpha, beta):
 
 def gen_gaus_stdev_err(alpha, alpha_err, beta, beta_err):
      '''
-     Returns
+     Returns the error in the standard deviation of a generalized gaussain, given alpha and beta---and their uncertainties.
 
-     Calculated with mathematica. 
+     Partial derivatives calculated with mathematica. 
      '''
 
      stdev = gen_gaus_stdev(alpha, beta)
 
-     partial_alpha = alpha * rt.TMath.tgamma(3 / beta) / (rt.TMath.tgamma(1 / beta) * stdev)
+     partial_alpha = stdev / alpha
 
-     partial_beta_num = alpha**2 * rt.TMath.tgamma(3 / beta) * polygamma(0, 1 / beta) - 3 * alpha**2 * rt.TMath.tgamma(3 / beta ) * polygamma(0, 3 / beta)
-     partial_beta_denom = 2 * beta**2 * rt.TMath.tgamma(1 / beta) * stdev
+     partial_beta_num = stdev * (polygamma(0, 1/beta) - 3 * polygamma(0, 3/beta))
+     partial_beta_denom = 2 * beta**2
      partial_beta = partial_beta_num / partial_beta_denom
 
      err_squared = (partial_alpha * alpha_err)**2 + (partial_beta * beta_err)**2 
@@ -308,9 +314,17 @@ gen_gaus_params_beta_near = gen_gaus_params[:, 2, 0]
 gen_gaus_params_alpha_away = gen_gaus_params[:, 5, 0]
 gen_gaus_params_beta_away = gen_gaus_params[:, 6, 0]
 
+gen_gaus_params_alpha_near_err = gen_gaus_params[:, 1, 1]
+gen_gaus_params_beta_near_err = gen_gaus_params[:, 2, 1] 
+
+gen_gaus_params_alpha_away_err = gen_gaus_params[:, 5, 1]
+gen_gaus_params_beta_away_err = gen_gaus_params[:, 6, 1]
+
 gen_gaus_stdev_near = np.array([gen_gaus_stdev(alpha, beta) for (alpha, beta) in zip(gen_gaus_params_alpha_near, gen_gaus_params_beta_near)])
 gen_gaus_stdev_away = np.array([gen_gaus_stdev(alpha, beta) for (alpha, beta) in zip(gen_gaus_params_alpha_away, gen_gaus_params_beta_away)])
 
+gen_gaus_stdev_near_err = np.array([gen_gaus_stdev_err(alpha, alpha_err, beta, beta_err) for (alpha, alpha_err, beta, beta_err) in zip(gen_gaus_params_alpha_near, gen_gaus_params_alpha_near_err, gen_gaus_params_beta_near, gen_gaus_params_beta_near_err)])
+gen_gaus_stdev_away_err = np.array([gen_gaus_stdev_err(alpha, alpha_err, beta, beta_err) for (alpha, alpha_err, beta, beta_err) in zip(gen_gaus_params_alpha_away, gen_gaus_params_alpha_away_err, gen_gaus_params_beta_away, gen_gaus_params_beta_away_err)])
 
 def mises_stdev(kappa):
     '''
@@ -332,7 +346,7 @@ def mises_stdev_err(kappa, kappa_err):
      I0 = rt.TMath.BesselI0(kappa)
      
      stdev = mises_stdev(kappa)
-     err = (1 / stdev) * (I1/I0 - I0/I1 + 1/kappa) * kappa
+     err = (1 / stdev) * (I1/I0 - I0/I1 + 1/kappa) * kappa_err
 
      return np.abs(err)
 
@@ -345,8 +359,17 @@ mises_params = np.array(mises_params)
 mises_kappa_near = mises_params[:, 2, 0]
 mises_kappa_away = mises_params[:, 5, 0]
 
+mises_kappa_near_err = mises_params[:, 2, 1]
+mises_kappa_away_err = mises_params[:, 5, 1]
+
 mises_stdev_near = np.array([mises_stdev(kappa) for kappa in mises_kappa_near])
 mises_stdev_away = np.array([mises_stdev(kappa) for kappa in mises_kappa_away])
+
+mises_stdev_near_err = np.array([mises_stdev_err(kappa, kappa_err) for (kappa, kappa_err) in zip(mises_kappa_near, mises_kappa_near_err)])
+mises_stdev_away_err = np.array([mises_stdev_err(kappa, kappa_err) for (kappa, kappa_err) in zip(mises_kappa_away, mises_kappa_away_err)])
+
+print('near', mises_stdev_near)
+print('near err', mises_stdev_near_err)
 
 SMALL_SIZE = 12
 MEDIUM_SIZE = 14
@@ -363,33 +386,52 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 plt.rcParams['figure.dpi'] = 400
 
 fig = plt.figure()
-gs = fig.add_gridspec(2, 2, hspace=0.1, wspace=0.1)
-((ax1, ax2),(ax3, ax4)) = gs.subplots(sharex='col', sharey='row')
+gs = fig.add_gridspec(2, 2, hspace=0.2, wspace=0.3)
+((ax1, ax2), (ax3, ax4)) = gs.subplots(sharex='col')#, sharey='row')
 
-eta = [0.8, 1.2, 2.0]
-ax1.scatter(eta, gaus_stdev_near[:3], color='k')
-ax1.scatter(eta, gen_gaus_stdev_near[:3], color='b')
-ax1.scatter(eta, mises_stdev_near[:3], color='r')
+eta = np.array([0.8, 1.2, 2.0])
+offset = 0.08
+#ax1.scatter(eta, gaus_stdev_near[:3], color='k')
+#ax1.scatter(eta, gen_gaus_stdev_near[:3], color='b')
+#ax1.scatter(eta, mises_stdev_near[:3], color='r')
 
-ax2.scatter(eta, gaus_stdev_near[3:], color='k', label='Gaussian')
-ax2.scatter(eta, gen_gaus_stdev_near[3:], color='b', label='Gen. Gaussian')
-ax2.scatter(eta, mises_stdev_near[3:], color='r',  label='Von Mises')
+ax1.errorbar(eta - offset, gaus_stdev_near[:3], yerr=gaus_stdev_near_err[:3], fmt='sk')#, color='k')
+ax1.errorbar(eta, gen_gaus_stdev_near[:3], yerr=gen_gaus_stdev_near_err[:3], fmt='sb')#, color='b')
+ax1.errorbar(eta + offset, mises_stdev_near[:3], mises_stdev_near_err[:3], fmt='sr')#, color='r')
 
-ax3.scatter(eta, gaus_stdev_away[:3], color='k')
-ax3.scatter(eta, gen_gaus_stdev_away[:3], color='b')
-ax3.scatter(eta, mises_stdev_away[:3], color='r')
+#ax2.scatter(eta, gaus_stdev_near[3:], color='k', label='Gaussian')
+#ax2.scatter(eta, gen_gaus_stdev_near[3:], color='b', label='Gen. Gaussian')
+#ax2.scatter(eta, mises_stdev_near[3:], color='r',  label='Von Mises')
 
-ax4.scatter(eta, gaus_stdev_away[3:], color='k')
-ax4.scatter(eta, gen_gaus_stdev_away[3:], color='b')
-ax4.scatter(eta, mises_stdev_away[3:], color='r')
+ax2.errorbar(eta - offset, gaus_stdev_near[3:], yerr=gaus_stdev_near_err[3:], fmt='sk', label='Gaussian')
+ax2.errorbar(eta, gen_gaus_stdev_near[3:], yerr=gen_gaus_stdev_near_err[3:], fmt='sb', label='Gen. Gaussian')
+ax2.errorbar(eta + offset, mises_stdev_near[3:], yerr=mises_stdev_near_err[3:], fmt='sr', label='Von Mises')
+
+# ax3.scatter(eta, gaus_stdev_away[:3], color='k')
+# ax3.scatter(eta, gen_gaus_stdev_away[:3], color='b')
+# ax3.scatter(eta, mises_stdev_away[:3], color='r')
+
+ax3.errorbar(eta - offset, gaus_stdev_away[:3], yerr=gaus_stdev_away_err[:3], fmt='ok')
+ax3.errorbar(eta, gen_gaus_stdev_away[:3], yerr=gen_gaus_stdev_away_err[:3], fmt='ob')
+ax3.errorbar(eta + offset, mises_stdev_away[:3], yerr=mises_stdev_away_err[:3], fmt='or')
+
+# ax4.scatter(eta, gaus_stdev_away[3:], color='k')
+# ax4.scatter(eta, gen_gaus_stdev_away[3:], color='b')
+# ax4.scatter(eta, mises_stdev_away[3:], color='r')
+
+ax4.errorbar(eta - offset, gaus_stdev_away[3:], yerr=gaus_stdev_away_err[3:], fmt='ok')#, color='k')
+ax4.errorbar(eta, gen_gaus_stdev_away[3:], yerr=gen_gaus_stdev_away_err[3:], fmt='ob')#, color='b')
+ax4.errorbar(eta + offset, mises_stdev_away[3:], mises_stdev_away_err[3:], fmt='or')#, color='r')
 
 ax3.set_xlim(0.6, 2.2)
 ax4.set_xlim(0.6, 2.2)
 ax3.set_xticks(eta)
 ax4.set_xticks(eta)
 
-ax1.set_ylim(0.16, 0.22)
+ax1.set_ylim(0.17, 0.20)
+ax2.set_ylim(0.15, 0.28)
 ax3.set_ylim(0.34, 0.4)
+ax4.set_ylim(0.30, 0.46)
 
 ax1.set_ylabel('$\sigma_{NS}$')
 ax3.set_ylabel('$\sigma_{AS}$')
@@ -400,7 +442,7 @@ ax4.set_xlabel('$|\eta|<x$')
 ax1.set_title('h$-$h')
 ax2.set_title('h$-\Lambda$')
 
-ax2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+ax2.legend(loc='center left', bbox_to_anchor=(1, 0.5), markerscale=0)
 
 #plt.tight_layout()
 fig.suptitle('$\sigma_{\mathrm{NS}}$ and $\sigma_{\mathrm{AS}}$ Across Cuts and Fits')
@@ -409,26 +451,40 @@ plt.savefig('widths-across-fits.pdf', bbox_inches='tight')
 
 fig, axs = plt.subplots(2, sharex=True)
 
-eta = [0.8, 1.2, 2.0]
-ns_stdevs = [gaus_stdev_near, gen_gaus_stdev_near, mises_stdev_near]
-as_stdevs = [gaus_stdev_away, gen_gaus_stdev_away, mises_stdev_away]
-colors = ['k', 'b', 'r']
-labels = ['Guassian', 'Gen. Gaussian', 'Von Mises']
+def ratio_err(numerator, numerator_err, denomenator, denomenator_err):
+     ratio = numerator / denomenator
+     
+     return ratio * np.sqrt((numerator_err / numerator)**2 + (denomenator_err / denomenator)**2)
 
-for ns_stdev, as_stdev, color, label in zip(ns_stdevs, as_stdevs, colors, labels):
+eta = np.array([0.8, 1.2, 2.0])
+offsets = np.array([-0.05, 0.0, 0.05])
+ns_stdevs = [gaus_stdev_near, gen_gaus_stdev_near, mises_stdev_near]
+ns_stdevs_err = [gaus_stdev_near_err, gen_gaus_stdev_near_err, mises_stdev_near_err]
+as_stdevs = [gaus_stdev_away, gen_gaus_stdev_away, mises_stdev_away]
+as_stdevs_err = [gaus_stdev_away_err, gen_gaus_stdev_away_err, mises_stdev_away_err]
+format = [['sk', 'ok'], ['sb', 'ob'], ['sr', 'or']]
+labels = ['Gaussian', 'Gen. Gaussian', 'Von Mises']
+
+for ns_stdev, ns_stdev_err, as_stdev, as_stdev_err, fmt, label, offset in zip(ns_stdevs, ns_stdevs_err, as_stdevs, as_stdevs_err, format, labels, offsets):
     near_ratios = ns_stdev[3:] / ns_stdev[:3] # h-L / h-h near side
     away_ratios = as_stdev[3:] / as_stdev[:3] # h-L / h-h away side
 
-    axs[0].scatter(eta, near_ratios, color=color, label=label)
-    axs[1].scatter(eta, away_ratios, color=color, label=label)
+    near_ratios_err = ratio_err(ns_stdev[3:], ns_stdev_err[3:], ns_stdev[:3], ns_stdev_err[:3])#ns_stdev_err[3:] / ns_stdev_err[:3]
+    away_ratios_err = ratio_err(as_stdev[3:], as_stdev_err[3:], as_stdev[:3], as_stdev_err[:3])#as_stdev_err[3:] / as_stdev_err[:3]
+    print('err', near_ratios_err)
+    print(away_ratios_err)
+    near_fmt, away_fmt = fmt 
+    axs[0].errorbar(eta + offset, near_ratios, yerr=near_ratios_err, fmt=near_fmt, label=label)
+    axs[1].errorbar(eta + offset, away_ratios, yerr=away_ratios_err, fmt=away_fmt, label=label)
 
 axs[0].set_xticks(eta)
 axs[1].set_xticks(eta)
 
-axs[0].legend()
+#plt.legend(markerscale=0)
+axs[0].legend(loc='center left', bbox_to_anchor=(1, 0.5), markerscale=0)
 
-axs[0].set_ylim(0.9, 1.25)
-axs[1].set_ylim(0.9, 1.1)
+axs[0].set_ylim(0.8, 1.6)
+axs[1].set_ylim(0.8, 1.2)
 
 axs[1].set_xlabel('$|\eta|<x$')
 axs[0].set_ylabel('$\sigma^{h-\Lambda}_{NS} / \sigma^{h-h}_{NS}$')
@@ -437,7 +493,7 @@ axs[1].set_ylabel('$\sigma^{h-\Lambda}_{AS} / \sigma^{h-h}_{AS}$')
 fig.suptitle('Width Ratios for Various Fits and $\eta$ Cuts')
 
 #plt.tight_layout()
-plt.savefig('ratios-across-fits.pdf')
+plt.savefig('ratios-across-fits.pdf', bbox_inches='tight')
 
 ##################
 ## Width Examples

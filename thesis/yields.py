@@ -94,7 +94,7 @@ ratioGraph.SetMarkerStyle(rt.kFullCircle)
 
 #ratioGraph.SetMaximum(22e-3)
 #ratioGraph.SetMinimum(16e-3)
-ratioGraph.GetYaxis().SetRangeUser(0.012, 0.028)
+ratioGraph.GetYaxis().SetRangeUser(0.014, 0.026)
 ratioGraph.GetYaxis().SetMaxDigits(2)
 
 # ratioGraph.GetYaxis().SetRangeUser(18, 21)
