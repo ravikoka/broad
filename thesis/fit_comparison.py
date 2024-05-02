@@ -132,7 +132,10 @@ for i, (sparse, guess) in enumerate(zip(distributions, gaus_guesses)):
 
             rp = rt.TRatioPlot(dphi)
             rp.SetLeftMargin(0.2)
+            
             rp.Draw()
+            rp.GetLowerRefYaxis().SetTitle('(data - fit) / #sigma') # must come after draw... for unknown reasons: https://root-forum.cern.ch/t/histogram-title/30149/32
+            rp.GetLowerRefYaxis().SetTitleOffset(1.2)
 
             label = rt.TLatex()
             label_y_start = 0.85 #0.96 
@@ -193,6 +196,9 @@ for i, (sparse, guess) in enumerate(zip(distributions, gen_gaus_guesses)):
             rp2.SetLeftMargin(0.2)
             rp2.Draw()
 
+            rp2.GetLowerRefYaxis().SetTitle('(data - fit) / #sigma')
+            rp2.GetLowerRefYaxis().SetTitleOffset(1.2)
+
             label = rt.TLatex()
             label_y_start = 0.85 #0.96 
             label_x_start = 0.25
@@ -250,6 +256,9 @@ for i, (sparse, guess) in enumerate(zip(distributions, mises_guesses)):
             rp3 = rt.TRatioPlot(dphi)
             rp3.SetLeftMargin(0.2)
             rp3.Draw()
+
+            rp3.GetLowerRefYaxis().SetTitle('(data - fit) / #sigma')
+            rp3.GetLowerRefYaxis().SetTitleOffset(1.2)
 
             label = rt.TLatex()
             label_y_start = 0.85 #0.96 
