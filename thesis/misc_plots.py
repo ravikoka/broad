@@ -167,6 +167,7 @@ pt_canvas.SetLeftMargin(0.14)
 charged_hadron_pt = chargedHadronDist.Project3D('x')
 charged_hadron_pt.Rebin(2)
 charged_hadron_pt.GetYaxis().SetRangeUser(0, 1.3 * charged_hadron_pt.GetMaximum())
+charged_hadron_pt.GetXaxis().SetRangeUser(0, 6)
 
 charged_hadron_pt.SetTitle('Charged Hadron p_{T} (no acceptance cut)')
 charged_hadron_pt.GetXaxis().SetTitle('p_{T} (GeV/c)')
@@ -176,6 +177,49 @@ charged_hadron_pt.GetYaxis().SetTitleOffset(1.8)
 pt_canvas.Draw()
 charged_hadron_pt.Draw()
 pt_canvas.SaveAs('charged_hadron_pt.pdf')
+
+##################
+# eta distribution
+##################
+
+eta_canvas = rt.TCanvas()
+eta_canvas.SetLeftMargin(0.14)
+
+charged_hadron_eta = chargedHadronDist.Project3D('z')
+#charged_hadron_eta.Rebin(2)
+charged_hadron_eta.GetYaxis().SetRangeUser(0, 1.3 * charged_hadron_eta.GetMaximum())
+charged_hadron_eta.GetXaxis().SetRangeUser(-6, 6)
+
+charged_hadron_eta.SetTitle('Charged Hadron #eta (no acceptance cut)')
+charged_hadron_eta.GetXaxis().SetTitle('#eta')
+charged_hadron_eta.GetYaxis().SetTitle('#frac{dN}{d#eta}')
+charged_hadron_eta.GetYaxis().SetTitleOffset(1.8)
+
+eta_canvas.Draw()
+charged_hadron_eta.Draw()
+eta_canvas.SaveAs('charged_hadron_eta.pdf')
+
+##################
+# phi distribution
+##################
+
+phi_canvas = rt.TCanvas()
+phi_canvas.SetLeftMargin(0.14)
+
+charged_hadron_phi = chargedHadronDist.Project3D('y')
+#charged_hadron_phi.Rebin(2)
+charged_hadron_phi.GetYaxis().SetRangeUser(0, 1.3 * charged_hadron_phi.GetMaximum())
+charged_hadron_phi.GetXaxis().SetRangeUser(0, 2 * rt.TMath.Pi() - 0.01)
+
+charged_hadron_phi.SetTitle('Charged Hadron #varphi (no acceptance cut)')
+charged_hadron_phi.GetXaxis().SetTitle('#varphi (rad)')
+charged_hadron_phi.GetYaxis().SetTitle('#frac{dN}{d#varphi} (1/rad)')
+charged_hadron_phi.GetYaxis().SetTitleOffset(1.8)
+
+phi_canvas.Draw()
+charged_hadron_phi.Draw()
+phi_canvas.SaveAs('charged_hadron_phi.pdf')
+
 
 #########################
 # 1D and 2D distributions
