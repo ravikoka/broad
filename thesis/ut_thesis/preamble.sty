@@ -1,0 +1,72 @@
+\ProvidesPackage{preamble}
+
+\usepackage[authoryear, round]{natbib}
+\usepackage{styles/utformat}  		% Package style file for UT ETDs.
+
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx} % extra features for tabular environment
+\usepackage{amsmath}  % improve math presentation
+\usepackage{amsfonts} % for mathbb
+\usepackage{mathtools} % for coloneq
+\usepackage{graphicx} % takes care of graphic including machinery
+\usepackage{subfig} % for side-by-side figures
+\usepackage{float}
+\usepackage{placeins}
+\usepackage[margin=1in,letterpaper]{geometry} % decreases margins
+%\usepackage{cite} % takes care of citations
+\usepackage[final]{hyperref} % adds hyper links inside the generated pdf file
+%\usepackage{subfigure}
+\usepackage[shortlabels]{enumitem}
+\usepackage[sorting=none]{biblatex}
+
+\usepackage[title,titletoc]{appendix}
+
+%\usepackage{lineno} %line numbers
+%\linenumbers
+
+\usepackage{subfiles}
+
+\oneandonehalfspacing
+
+
+\addbibresource{\subfix{ut_thesis.bib}}
+
+% \AtEndDocument{%
+%     \printbibliography
+% }
+
+\hypersetup{
+	colorlinks=true,       % false: boxed links; true: colored links
+	linkcolor=blue,        % color of internal links
+	citecolor=blue,        % color of links to bibliography
+	filecolor=magenta,     % color of file links
+	urlcolor=blue         
+}
+
+\graphicspath{{introduction/figs/}{analysis/figs/}{results/figs/}}
+
+\newcommand{\latexe}{{\LaTeX\kern.125em2%
+                      \lower.5ex\hbox{$\varepsilon$}}}
+
+\newcommand{\amslatex}{\AmS-\LaTeX{}}
+
+\chardef\bslash=`\\	% \bslash makes a backslash (in tt fonts)
+			%	p. 424, TeXbook
+
+\newcommand{\cn}[1]{\texttt{\bslash #1}}
+
+\makeatletter		% Starts section where @ is considered a letter
+			% and thus may be used in commands.
+\def\square{\RIfM@\bgroup\else$\bgroup\aftergroup$\fi
+  \vcenter{\hrule\hbox{\vrule\@height.6em\kern.6em\vrule}%
+                                              \hrule}\egroup}
+\makeatother		% Ends sections where @ is considered a letter.
+			% Now @ cannot be used in commands.
+
+%\nobibliography*
+
+
+
+% These values determine the numbering within the text and Table of Contents.
+\setcounter{secnumdepth}{3}    % Number subsections in the chapters.
+\setcounter{tocdepth}{2} % include subsections in the Table of Contents

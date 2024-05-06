@@ -1,0 +1,67 @@
+\documentclass[letterpaper, 12pt]{report}
+% centered at midrap
+% underlying event from soft and hard physics
+% UE from other jets and from other scatterings, soft as in not initial hard scattering. uncorrelated in HI event, main contribution from QGP medium, additional/secondary scattering (which we sometimes call soft scattering bc not from initial hard scattering)
+\usepackage{preamble}
+
+%\title{Examining the Effect of Detector Acceptance on %hadron-$\Lambda$ Correlations in PYTHIA Monte Carlo p-p Collisions %at $\sqrt{s}=7$ TeV, an Investigation of the Quark-Gluon Plasma in %Small Systems}
+%\author{Ravi Koka}
+%\date{\today}
+
+\usepackage{subfiles}
+
+\input{about.tex}
+
+\degree{Bachelor of Science in Physics}
+\degreeabbr{BS} 
+\dissertation
+
+\begin{document}
+\commcertpage
+\newpage
+%\permpage
+\titlepage
+
+
+\subfile{abstract/abstract.tex}
+
+\tableofcontents
+
+\chapter{Introduction}
+\begin{flushright}
+    \textit{Knees weak, ions are heavy.} \\
+    - \textit{Unknown}
+\end{flushright}
+\subfile{introduction/introduction.tex}
+
+\chapter{Motivations \& Methods}
+\begin{flushright}
+    \textit{Particles on my sweater already.} \\ 
+    - \textit{Kevin Wen}
+\end{flushright}
+\subfile{analysis/analysis.tex}
+
+\chapter{Results \& Discussion}
+\begin{flushright}
+    \textit{Nuclear spaghetti.} \\
+    - \textit{Unknown}
+\end{flushright}
+\subfile{results/results.tex}
+
+\chapter{Summary}
+\subfile{summary/summary.tex}
+
+\chapter{Resources for the Aspiring Undergraduate Researcher}
+\subfile{resources/resources.tex}
+
+%\appendix
+\begin{appendices}
+%\chapter{Appendix}
+\subfile{appendix/appendix.tex}    
+\end{appendices}
+
+
+%\printbibliography
+\printbibliography[ heading=bibintoc, title={Works Cited}] 
+
+\end{document}
